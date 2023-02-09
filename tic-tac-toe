@@ -1,0 +1,228 @@
+import random
+import os.path
+import json
+random.seed()
+
+def game_board(board):
+    for x in range(3):
+        print('\n----------- ')
+        print('|', end='')
+        for y in range(3):
+            print('', board[x][y], end=' |')
+    print('\n ----------- ')
+
+
+def welcome(board):
+    print('\n')
+    print('Welcome to the "Unbeatable Noughts and Crosses" game.\nThe board layout is shown below:')
+    game_board(board)
+    print('When prompted, enter the number corresponding to the square.')
+
+
+def initialise_board(board):
+    for x in range(3):
+        for j in range(3):
+            board[x][j]=' '
+    
+    return board
+    
+    
+    def get_player_move(board, possible_numbers):
+    while True:
+        picknumber = int(input('Enter a number corresponding to the square: '))
+
+        picknumber -=1
+        if picknumber in possible_numbers:
+            if picknumber==0:
+                board[0][0] = 'X'
+            elif picknumber==1:
+                board[0][1] = 'X'
+            elif picknumber==2:
+                board[0][2] = 'X'
+            elif picknumber==3:
+                board[1][0] = 'X'
+            elif picknumber==4:
+                board[1][1] = 'X'
+            elif picknumber==5:
+                board[1][2] = 'X'
+            elif picknumber==6:
+                board[2][0] = 'X'
+            elif picknumber==7:
+                board[2][1] = 'X'
+            elif picknumber==8:
+                board[2][2] = 'X'
+
+            possible_numbers.remove(picknumber)
+            return board, possible_numbers
+
+        else:
+            print('Number already teaken. Choose another number.')
+            
+            
+
+def choose_computer_move(board, possible_numbers):
+    computer_choice = random.choice(possible_numbers)
+    if computer_choice==0:
+        board[0][0] = 'O'
+    elif computer_choice==1:
+        board[0][1] = 'O'
+    elif computer_choice==2:
+        board[0][2] = 'O'
+    elif computer_choice==3:
+        board[1][0] = 'O'
+    elif computer_choice==4:
+        board[1][1] = 'O'
+    elif computer_choice==5:
+        board[1][2] = 'O'
+    elif computer_choice==6:
+        board[2][0] = 'O'
+    elif computer_choice==7:
+        board[2][1] = 'O'
+    elif computer_choice==8:
+        board[2][2] = 'O'
+        
+    possible_numbers.remove(computer_choice)
+    return board, possible_numbers
+
+
+
+def check_for_win(board, mark):
+    if (board[0][0]==mark) and (board[0][1]==mark)and (board[0][2]==mark):
+        return True
+    elif (board[1][0]==mark) and (board[1][1]==mark) and (board[1][2]==mark):
+        return True
+    elif (board[2][0]==mark) and (board[2][1]==mark) and (board[2][2]==mark):
+        return True
+    elif (board[0][0]==mark) and (board[1][0]==mark) and (board[2][0]==mark):
+        return True
+    elif (board[0][1]==mark) and (board[1][1]==mark) and (board[2][1]==mark):
+        return True
+    elif (board[0][2]==mark) and (board[1][2]==mark) and (board[2][2]==mark):
+        return True
+    elif (board[0][0]==mark) and (board[1][1]==mark) and (board[2][2]==mark):
+        return True
+    elif (board[0][2]==mark) and (board[1][1]==mark) and (board[2][0]==mark):
+        return True
+    else:
+        return False
+
+def check_for_draw(board):
+    if (' ' not in board[0]) and (' ' not in board[1]) and (' ' not in board[2]):
+        return True
+    return False
+
+def play_game(board):
+
+    initialise_board(board)
+    game_board(board)
+    possible_numbers = [x for x in range(9)]
+    for i in range(9):
+        if i % 2 == 0:
+            get_player_move(board, possible_numbers)
+            game_board(board)
+            mark = 'X'
+            check_win = check_for_win(board, mark)
+            if check_win:
+                print('-----------')
+                print(f'You win!!!')
+                print('-----------')
+                return 1
+            
+            drawn = check_for_draw(board)
+            if drawn:
+                print('-----------')
+                print("It's Draw!!!")
+                print('-----------')
+                return 0
+        else:
+            choose_computer_move(board, possible_numbers)
+            game_board(board)
+            mark = 'O'
+            check_win = check_for_win(board, mark)
+            if check_win:
+                print('-----------')
+                print(f'Computer wins!!!')
+                print('-----------')
+                return -1
+
+            drawn = check_for_draw(board)
+            if drawn:
+                print('-----------')
+                print("It's Draw!!!")
+                print('-----------')
+                return 0
+    return 0
+
+
+def menu():
+    print('\n')
+    print('Enter one of the following:')
+    print(" "*4,'1 - Play the game')
+    print(" "*4,'2 - Save your score in the leaderboard')
+    print(" "*4,'3 - Load and display the leaderboard')
+    print(" "*4,'q - End the program')
+    choice = input('1, 2, 3, q? ')
+    return choice
+    
+
+def load_scores():
+    filename = 'leaderboard.txt'
+
+    if os.path.exists(filename):
+        with open(filename, 'r') as file:
+            leaders = json.load(file)
+            return leaders
+    else:
+        print('No such file exists')
+        return False
+
+
+def save_score(score):
+    player_name = input('Enter your name to save score: ')
+
+    filename = 'leaderboard.txt'
+
+    if os.path.exists(filename):
+        with open(filename, 'r') as file:
+            eader_file = json.load(file)
+
+    eader_file[player_name] = score
+
+    with open(filename, 'w') as f:
+        json.dump(eader_file, f)
+
+    return
+
+
+def display_leaderboard(leaders):
+    if leaders != False:
+        sorted_dict = dict(sorted(leaders.items(), key=lambda x:x[1]))
+        for k, v in sorted_dict.items():
+            print(f'Player_Name: {k}        {v}')
+            
+            
+
+            
+def main():
+    board = [ ['1','2','3'],\
+              ['4','5','6'],\
+              ['7','8','9']]
+    
+    welcome(board)
+    total_score = 0
+    while True:
+        choice = menu()
+        if choice == '1':
+            score = play_game(board)
+            total_score += score
+            print('Your current score is:',total_score)
+        if choice == '2':
+            save_score(total_score)
+        if choice == '3':
+            leader_board = load_scores()
+            display_leaderboard(leader_board)
+        if choice == 'q':
+            print('Thank you for playing the "Unbeatable Noughts and Crosses" game.')
+            print('Good bye')
+            return
+
